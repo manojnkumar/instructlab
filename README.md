@@ -97,19 +97,11 @@ For an overview of the full workflow, see the [workflow diagram](./docs/workflow
 
 ### 🧰 Installing `ilab`
 
-1. When installing on Fedora Linux, install C++, Python 3.9+, and other necessary tools by running the following command:
+1. When installing on CentOS/Fedora Linux, install C++, Python 3.9+, and other necessary tools by running the following command:
 
    ```shell
-   sudo dnf install g++ gcc make pip python3 python3-devel python3-GitPython
+   sudo dnf install g++ gcc make pip python3 python3-devel 
    ```
-
-   Optional: If `g++` is not found, try `gcc-c++` by running the following command:
-
-   ```shell
-   sudo dnf install gcc-c++ gcc make pip python3 python3-devel python3-GitPython
-   ```
-
-   If you are running on macOS, this installation is not necessary and you can begin your process with the following step.  
 
 2. Create a new directory called `instructlab` to store the files the `ilab` CLI needs when running and `cd` into the directory by running the following command:
 
@@ -118,59 +110,27 @@ For an overview of the full workflow, see the [workflow diagram](./docs/workflow
    cd instructlab
    ```
 
-   > **NOTE:** The following steps in this document use [Python venv](https://docs.python.org/3/library/venv.html) for virtual environments. However, if you use another tool such as [pyenv](https://github.com/pyenv/pyenv) or [Conda Miniforge](https://github.com/conda-forge/miniforge) for managing Python environments on your machine continue to use that tool instead. Otherwise, you may have issues with packages that are installed but not found in `venv`.
+   > **NOTE:** The steps in for IBM Power work much better with conda.  So the Python venv options will not be presented here.
 
 3. Install and activate your `venv` environment by running the following command:
-
-   > **NOTE**: ⏳ `pip install` may take some time, depending on your internet connection. In case installation fails with error ``unsupported instruction `vpdpbusd'``, append `-C cmake.args="-DLLAMA_NATIVE=off"` to `pip install` command.
-
-   See [the GPU acceleration documentation](./docs/gpu-acceleration.md) for how to
-   to enable hardware acceleration for inference and training on AMD ROCm,
-   Apple Metal Performance Shaders (MPS), and Nvidia CUDA.
 
    #### To install with no GPU acceleration and PyTorch without CUDA bindings
 
    ```shell
-   python3 -m venv --upgrade-deps venv
-   source venv/bin/activate
-   (venv) $ pip cache remove llama_cpp_python
-   (venv) $ pip install git+https://github.com/instructlab/instructlab.git@stable --extra-index-url=https://download.pytorch.org/whl/cpu
-   ```
+   wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-ppc64le.sh
+   chmod +x Miniconda3-latest-Linux-ppc64le.sh
+   ./Miniconda3-latest-Linux-ppc64le.sh
 
-   #### To install with AMD ROCm
+   conda create -n p10-ilab python=3.9
+   conda activate p10-ilab  
+   conda install openblas=0.3.23=openmp_h1234567_1 -c rocketce 
+   conda install -c conda-forge astunparse numpy ninja pyyaml setuptools cmake cffi typing_extensions future six requests dataclasses pyarrow=16.0.0
 
-   ```shell
-   python3 -m venv --upgrade-deps venv
-   source venv/bin/activate
-   (venv) $ pip cache remove llama_cpp_python
-   (venv) $ pip install git+https://github.com/instructlab/instructlab.git@stable \
-       --extra-index-url https://download.pytorch.org/whl/rocm6.0 \
-       -C cmake.args="-DLLAMA_HIPBLAS=on" \
-       -C cmake.args="-DAMDGPU_TARGETS=all" \
-       -C cmake.args="-DCMAKE_C_COMPILER=/opt/rocm/llvm/bin/clang" \
-       -C cmake.args="-DCMAKE_CXX_COMPILER=/opt/rocm/llvm/bin/clang++" \
-       -C cmake.args="-DCMAKE_PREFIX_PATH=/opt/rocm"
+   (p10-ilab) $ pip cache remove llama_cpp_python
+   (p10-ilab) $ pip install git+https://github.com/manojnkumar/instructlab.git@ibm_power --extra-index-url=https://download.pytorch.org/whl/cpu
    ```
 
    On Fedora 40+, use `-DCMAKE_C_COMPILER=clang-17` and `-DCMAKE_CXX_COMPILER=clang++-17`.
-
-   #### To install with Apple Metal on M1/M2/M3 Mac
-
-   ```shell
-   python3 -m venv --upgrade-deps venv
-   source venv/bin/activate
-   (venv) $ pip cache remove llama_cpp_python
-   (venv) $ pip install git+https://github.com/instructlab/instructlab.git@stable -C cmake.args="-DLLAMA_METAL=on"
-   ```
-
-   #### To install with Nvidia CUDA
-
-   ```shell
-   python3 -m venv --upgrade-deps venv
-   source venv/bin/activate
-   (venv) $ pip cache remove llama_cpp_python
-   (venv) $ pip install git+https://github.com/instructlab/instructlab.git@stable -C cmake.args="-DLLAMA_CUBLAS=on"
-   ```
 
 4. From your `venv` environment, verify `ilab` is installed correctly, by running the `ilab` command.
 
